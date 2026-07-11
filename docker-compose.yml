@@ -6,12 +6,12 @@ services:
     image: malekdev80/mon-backend-spring:latest
     container_name: backend-service
     ports:
-      - "8080:8080" # Port par défaut de Spring Boot
+      - "3000:3000" # Mapping correct: port 3000 de la machine vers 3000 du conteneur
     networks:
       - monitor-net
     restart: always
 
-  # Prometheus (Collecte des métriques)
+  # Prometheus
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -24,7 +24,7 @@ services:
       - monitor-net
     restart: always
 
-  # Alertmanager (Gestion des alertes)
+  # Alertmanager
   alertmanager:
     image: prom/alertmanager:latest
     container_name: alertmanager
@@ -36,14 +36,14 @@ services:
       - monitor-net
     restart: always
 
-  # Grafana (Visualisation des données)
+  # Grafana
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3001:3000" # Accès via http://localhost:3001
+      - "3001:3000" 
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin # Changez ce mot de passe par sécurité
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
