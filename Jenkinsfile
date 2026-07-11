@@ -15,7 +15,6 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // J'ai retiré le -DskipTests pour permettre à JaCoCo de calculer la couverture
                 bat 'mvn clean package'
             }
         }
@@ -23,7 +22,6 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Utilise la configuration 'SonarQube' définie dans Manage Jenkins > System
                     withSonarQubeEnv('SonarQube') {
                         bat 'mvn sonar:sonar'
                     }
@@ -34,13 +32,21 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Connexion à Docker Hub
                     docker.withRegistry('', 'ocker-hub-credentials') {
-                        // Construction de l'image
                         def customImage = docker.build("malekdev80/mon-backend-spring")
-                        // Envoi sur le Hub
                         customImage.push("latest")
                     }
+                }
+            }
+        }
+
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    // Cette commande va arrêter les conteneurs, 
+                    // tirer la nouvelle image et relancer le service
+                    bat 'docker-compose pull'
+                    bat 'docker-compose up -d'
                 }
             }
         }
