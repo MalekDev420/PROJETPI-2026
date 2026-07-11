@@ -4,7 +4,6 @@ pipeline {
     tools {
         maven 'Maven-3.9'
         jdk 'JDK-17'
-        // 'sonar-scanner' est le nom que vous avez donné dans Manage Jenkins > Tools
     }
 
     stages {
@@ -16,7 +15,8 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                bat 'mvn clean package -DskipTests'
+                // J'ai retiré le -DskipTests pour permettre à JaCoCo de calculer la couverture
+                bat 'mvn clean package'
             }
         }
 
@@ -25,13 +25,7 @@ pipeline {
                 script {
                     // Utilise la configuration 'SonarQube' définie dans Manage Jenkins > System
                     withSonarQubeEnv('SonarQube') {
-                        // Utilise le scanner installé automatiquement
-                        def scannerHome = tool 'sonar-scanner'
-                        bat "${scannerHome}/bin/sonar-scanner " +
-                            "-Dsonar.projectKey=Pipeline-Backend " +
-                            "-Dsonar.sources=src " +
-                            "-Dsonar.java.binaries=target/classes " +
-                            "-Dsonar.host.url=http://localhost:9000 "
+                        bat 'mvn sonar:sonar'
                     }
                 }
             }
@@ -40,11 +34,11 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Connexion à Docker Hub (ID corrigé)
+                    // Connexion à Docker Hub
                     docker.withRegistry('', 'ocker-hub-credentials') {
-                        // Construction
+                        // Construction de l'image
                         def customImage = docker.build("malekdev80/mon-backend-spring")
-                        // Push
+                        // Envoi sur le Hub
                         customImage.push("latest")
                     }
                 }
