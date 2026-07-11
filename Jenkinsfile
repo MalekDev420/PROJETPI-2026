@@ -15,26 +15,23 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // Compilation du projet pour générer le JAR
                 bat 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Build & Push') {
             steps {
-                // Construction de l'image Docker
-                // Assurez-vous que Docker est bien lancé sur votre machine
-                bat 'docker build -t mon-backend-spring .'
+                script {
+                    // 1. Connexion à Docker Hub
+                    docker.withRegistry('', 'docker-hub-credentials') {
+                        // 2. Construire l'image
+                        def customImage = docker.build("malekdev80/mon-backend-spring")
+                        
+                        // 3. Pousser l'image
+                        customImage.push("latest")
+                    }
+                }
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline réussi : Le JAR est généré et l\'image Docker a été construite.'
-        }
-        failure {
-            echo 'Pipeline échoué. Vérifiez vos étapes.'
         }
     }
 }
