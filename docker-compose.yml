@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Votre Backend Spring Boot
+  backend:
+    image: malekdev80/mon-backend-spring:latest
+    container_name: backend-service
+    ports:
+      - "8080:8080" # Port par défaut de Spring Boot
+    networks:
+      - monitor-net
+    restart: always
+
+  # Prometheus (Collecte des métriques)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - monitor-net
+    restart: always
+
+  # Alertmanager (Gestion des alertes)
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - monitor-net
+    restart: always
+
+  # Grafana (Visualisation des données)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000" # Accès via http://localhost:3001
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin # Changez ce mot de passe par sécurité
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitor-net
+    restart: always
+
+networks:
+  monitor-net:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
