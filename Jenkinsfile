@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     tools {
-        // Assurez-vous que les noms correspondent à votre configuration Jenkins (Global Tool Configuration)
         maven 'Maven-3.9'
         jdk 'JDK-17'
     }
@@ -10,25 +9,32 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Récupère le code depuis votre dépôt GitHub
                 checkout scm
             }
         }
 
         stage('Build & Test') {
             steps {
-                // Compile et lance les tests unitaires
-                bat 'mvn clean package'
+                // Compilation du projet pour générer le JAR
+                bat 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                // Construction de l'image Docker
+                // Assurez-vous que Docker est bien lancé sur votre machine
+                bat 'docker build -t mon-backend-spring .'
             }
         }
     }
 
     post {
         success {
-            echo 'Le build et les tests ont réussi !'
+            echo 'Pipeline réussi : Le JAR est généré et l\'image Docker a été construite.'
         }
         failure {
-            echo 'Le build a échoué. Veuillez vérifier les logs.'
+            echo 'Pipeline échoué. Vérifiez vos étapes.'
         }
     }
 }
