@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // 1. Connexion à Docker Hub
-                    docker.withRegistry('', 'docker-hub-credentials') {
+                    docker.withRegistry('', 'ocker-hub-credentials') {
                         // 2. Construire l'image
                         def customImage = docker.build("malekdev80/mon-backend-spring")
                         
