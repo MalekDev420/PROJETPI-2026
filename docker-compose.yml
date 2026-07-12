@@ -1,12 +1,15 @@
-
-
 services:
   # Votre Backend Spring Boot
   backend:
     image: malekdev80/mon-backend-spring:latest
     container_name: backend-service
     ports:
-      - "3000:3000" # Mapping correct: port 3000 de la machine vers 3000 du conteneur
+      - "3000:3000"
+    environment:
+      # Connexion vers MySQL (XAMPP sur Windows)
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/gestion_missions_spring?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
     networks:
       - monitor-net
     restart: always
