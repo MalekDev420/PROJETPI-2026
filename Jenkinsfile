@@ -45,6 +45,7 @@ pipeline {
                 script {
                     // Cette commande va arrêter les conteneurs, 
                     // tirer la nouvelle image et relancer le service
+                    bat 'docker-compose down' // Ajoute cette ligne pour nettoyer avant
                     bat 'docker-compose pull'
                     bat 'docker-compose up -d'
                 }
