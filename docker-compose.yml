@@ -1,20 +1,35 @@
 services:
-  # Votre Backend Spring Boot
+  # Base de données intégrée (remplace XAMPP)
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      - MYSQL_DATABASE=gestion_missions_spring
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3306:3306"
+    networks:
+      - monitor-net
+    restart: always
+
+  # Ton Backend mis à jour
   backend:
     image: malekdev80/mon-backend-spring:latest
     container_name: backend-service
     ports:
       - "3000:3000"
     environment:
-      # Connexion vers MySQL (XAMPP sur Windows)
-      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/gestion_missions_spring?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      # On pointe vers le service 'db' défini ci-dessus
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/gestion_missions_spring?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_PASSWORD=root
     networks:
       - monitor-net
+    depends_on:
+      - db
     restart: always
 
-  # Prometheus
+  # Le reste de tes services (Prometheus, Grafana, Alertmanager) reste identique
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -27,7 +42,6 @@ services:
       - monitor-net
     restart: always
 
-  # Alertmanager
   alertmanager:
     image: prom/alertmanager:latest
     container_name: alertmanager
@@ -39,7 +53,6 @@ services:
       - monitor-net
     restart: always
 
-  # Grafana
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
